@@ -1,3 +1,4 @@
+% Convert and display latest occupancy grid
 function showMap(rc)
 
 % Get latest map from RC
