@@ -1,11 +1,30 @@
-% Convert and display latest occupancy grid
 function showMap(rc)
+    figMap = figure('Name', 'Occupancy Grid Map', 'NumberTitle', 'off');
+    set(figMap, 'CloseRequestFcn', @closeFig);
 
-% Get latest map from RC
-map_msg = rc.getMap();
+    ax = axes(figMap); % Create an axis in the map figure
+    map_msg = rc.getMap();
+    occupancyGrid = readOccupancyGrid(map_msg);
+    binMat = occupancyMatrix(occupancyGrid); % Convert occupancyGrid to a binary matrix
+    imgObj = image(uint8(binMat*255), 'CDataMapping', 'scaled', 'Parent', ax); % Convert logical to uint8 for display
+    colormap(ax, 'gray');
+    axis tight;
 
-% Convert to Occupancy Grid type
-occupancyGrid = readOccupancyGrid(map_msg);
+    t = timer('TimerFcn', @(~,~)updateMap(rc, imgObj), 'Period', 0.5, 'ExecutionMode', 'fixedRate');
+    start(t);
 
-% Show in figure
-show(occupancyGrid)
+    function updateMap(rc, imgObj)
+        % This function will periodically fetch and display the map
+        map_msg = rc.getMap();
+        occupancyGrid = readOccupancyGrid(map_msg);
+        binMat = occupancyMatrix(occupancyGrid); % Convert to a binary matrix
+        set(imgObj, 'CData', uint8(binMat*255)); % Update the CData of the image object
+    end
+
+    function closeFig(~,~)
+        stop(t);
+        delete(t);
+        delete(gcf);
+        disp("Closed Map.")
+    end
+end
