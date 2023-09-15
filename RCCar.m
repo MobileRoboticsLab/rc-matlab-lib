@@ -117,6 +117,8 @@ classdef RCCar < handle
                 disp("RC already stopped. Use 'STOP' command to end all timers.")
             end
 
+            obj.isStopped = true;
+
             fprintf("Stopping RC Planner.\n")
             if isvalid(obj.PlannerTimer)
                 stop(obj.PlannerTimer);
@@ -128,8 +130,6 @@ classdef RCCar < handle
                 stop(obj.ControlTimer);
                 delete(obj.ControlTimer);
             end
-
-            obj.isStopped = true;
 
             % Clear timer properties.
             obj.PlannerTimer = [];

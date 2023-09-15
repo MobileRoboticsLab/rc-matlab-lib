@@ -1,8 +1,12 @@
 %% RC Car Simulation Shutdown
 function stopSimulation()
 
-STOP
+if exist('RC', 'var')
+    RC.stop
+end
+
 clear
+STOP
 
 % Shut down ROS Core
 rosshutdown

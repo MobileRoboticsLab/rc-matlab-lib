@@ -1,4 +1,4 @@
-function showMap(rc)
+function displayMap(rc)
 figMap = figure('Name', 'Occupancy Grid Map', 'NumberTitle', 'off');
 set(figMap, 'CloseRequestFcn', @closeFig);
 

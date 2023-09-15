@@ -3,9 +3,6 @@ function opts = RCOptions()
 % Create new RC options struct
 opts = struct;
 
-% ROS_MASTER_URI
-opts.URI = "http://10.42.0.1:11311";
-
 % Control functions
 opts.PlannerFcn = @TestPlannerFcn;
 opts.ControlFcn = @TestControlFcn;

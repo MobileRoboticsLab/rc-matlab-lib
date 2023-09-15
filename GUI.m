@@ -6,7 +6,7 @@ if ~RC.isStopped
 end
 
 % Create figure
-fig = figure('Name', 'RC CAR GUI', 'NumberTitle', 'off', ...
+fig = figure('Name', 'RC Car GUI', 'NumberTitle', 'off', ...
     'Position', [100, 100, 800, 600]);
 
 % Initialize key callbacks
@@ -38,20 +38,14 @@ start(displayUpdateTimer);
                 close(fig)
             case 'space'
                 if RC.isStopped
-                    stop(keyboardCommandTimer)
                     RC.go
                 else
                     RC.stop
-                    start(keyboardCommandTimer)
                 end
         end
     end
 
     function closeFig(~,~)
-        if isvalid(keyboardCommandTimer)
-            stop(keyboardCommandTimer)
-            delete(keyboardCommandTimer)
-        end
         if isvalid(displayUpdateTimer)
             stop(displayUpdateTimer)
             delete(displayUpdateTimer)

@@ -4,7 +4,7 @@ function startSimulation()
 %% ROS Connection
 
 % Start ROS Core on localhost
-rosinit
+rosinit("http://localhost:11311")
 
 % ROS Node Handle
 simNode = ros.Node('/rc_matlab_sim');
