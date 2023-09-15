@@ -23,7 +23,7 @@ opts.SteerGain = 0.95;
 opts.SteerOffset = 0.40;
 
 % DO NOT TOUCH! >:(
-opts.SpeedLimit = 0.5; % m/s
-opts.SpeedLimitReverse = 0.25; % m/s
+opts.SpeedLimit = 1.0; % m/s
+opts.SpeedLimitReverse = 0.75; % m/s
 opts.SteerLimitMin = -0.25; % rad
 opts.SteerLimitMax = +0.25; % rad

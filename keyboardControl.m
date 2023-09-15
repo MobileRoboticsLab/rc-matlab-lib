@@ -20,7 +20,7 @@ sText = uicontrol('Style', 'text', 'String', 'S', 'Units', 'normalized', ...
 dText = uicontrol('Style', 'text', 'String', 'D', 'Units', 'normalized', ...
     'Position', [0.675 0.25 boxSize], 'FontSize', 24, 'BackgroundColor', [1 1 1]);
 
-t = timer('TimerFcn', @(~,~)updateGUI(RC), 'Period', 0.1, 'ExecutionMode', 'fixedRate');
+t = timer('TimerFcn', @(~,~) updateGUI(RC), 'Period', 0.1, 'ExecutionMode', 'fixedRate');
 start(t);
 
     function keyPress(~, evt)
@@ -62,8 +62,10 @@ start(t);
     end
 
     function closeFig(~,~)
-        stop(t);
-        delete(t);
+        if isvalid(t)
+            stop(t)
+            delete(t)
+        end
         delete(gcf);
         disp("Closed GUI.")
     end
