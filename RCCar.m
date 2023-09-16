@@ -19,10 +19,6 @@ classdef RCCar < handle
         ServoPositionPublisher
         SysCommandPublisher
 
-        % Timer objects for planner and controller functions.
-        PlannerTimer
-        ControlTimer
-
         % State properties for the vehicle.
         LastState    % Last state of the vehicle. (Automatic)
         CurrentState % Current state [x, y, theta] of the vehicle. (Automatic)
@@ -39,9 +35,6 @@ classdef RCCar < handle
         DataLog3
         DataLog4
         DataLog5
-
-        % Property keeping track of 
-        isStopped
     end
 
     methods
@@ -59,81 +52,25 @@ classdef RCCar < handle
             obj.Node = ros.Node('/rc_car_matlab_node');
 
             % Subscribers
-            obj.PoseSubscriber = ros.Subscriber(obj.Node, ... 
+            obj.PoseSubscriber = ros.Subscriber(obj.Node, ...
                 '/slam_out_pose', 'geometry_msgs/PoseStamped', ...
                 @(src, msg) obj.poseCallback(src, msg));
-            obj.LidarSubscriber = ros.Subscriber(obj.Node, ... 
+            obj.LidarSubscriber = ros.Subscriber(obj.Node, ...
                 '/scan', 'sensor_msgs/LaserScan');
-            obj.MapSubscriber = ros.Subscriber(obj.Node, ... 
+            obj.MapSubscriber = ros.Subscriber(obj.Node, ...
                 '/map', 'nav_msgs/OccupancyGrid');
 
             % Publishers
-            obj.MotorSpeedPublisher = ros.Publisher(obj.Node, ... 
+            obj.MotorSpeedPublisher = ros.Publisher(obj.Node, ...
                 '/commands/motor/speed', 'std_msgs/Float64');
-            obj.ServoPositionPublisher = ros.Publisher(obj.Node, ... 
+            obj.ServoPositionPublisher = ros.Publisher(obj.Node, ...
                 '/commands/servo/position', 'std_msgs/Float64');
-            obj.SysCommandPublisher = ros.Publisher(obj.Node, ... 
+            obj.SysCommandPublisher = ros.Publisher(obj.Node, ...
                 '/syscommand', 'std_msgs/String');
 
-            obj.isStopped = true;
             obj.CurrentControl = [0; 0];
 
             fprintf("RC Car Initialized.\n")
-        end
-
-
-        % Start the RC functions
-        function go(obj)
-
-            if ~obj.isStopped
-                fprintf("RC Car already going.\n")
-                return
-            end
-
-            fprintf("Starting RC Planner @ %.1f Hz. \n", obj.Options.PlannerFreq)
-            
-            obj.isStopped = false;
-
-            % planner timer
-            obj.PlannerTimer = timer('Period', 1/obj.Options.PlannerFreq, ...
-                'ExecutionMode', 'fixedRate', ...
-                'TimerFcn', @(~,~) obj.Options.PlannerFcn(obj));
-            start(obj.PlannerTimer);
-
-            fprintf("Starting RC Control @ %.1f Hz. \n", obj.Options.ControlFreq)
-
-            % control timer
-            obj.ControlTimer = timer('Period', 1/obj.Options.ControlFreq, ...
-                'ExecutionMode', 'fixedRate', ...
-                'TimerFcn', @(~,~) obj.Options.ControlFcn(obj));
-            start(obj.ControlTimer);
-
-        end
-
-        % Stop and delete the timers.
-        function stop(obj)
-
-            if obj.isStopped
-                disp("RC already stopped. Use 'STOP' command to end all timers.")
-            end
-
-            obj.isStopped = true;
-
-            fprintf("Stopping RC Planner.\n")
-            if isvalid(obj.PlannerTimer)
-                stop(obj.PlannerTimer);
-                delete(obj.PlannerTimer);
-            end
-
-            fprintf("Stopping RC Control.\n")
-            if isvalid(obj.ControlTimer)
-                stop(obj.ControlTimer);
-                delete(obj.ControlTimer);
-            end
-
-            % Clear timer properties.
-            obj.PlannerTimer = [];
-            obj.ControlTimer = [];
         end
 
         % Get the latest pose message
@@ -176,7 +113,7 @@ classdef RCCar < handle
 
             % Publish the message
             send(obj.ServoPositionPublisher, msg);
-            
+
             % Update control
             obj.CurrentControl(2) = positionValue;
         end
@@ -186,7 +123,7 @@ classdef RCCar < handle
         % space and saved to CurrentState.
         function poseCallback(obj, ~, message)
             obj.LastState = obj.CurrentState;
-            obj.CurrentState = poseToSE2(message);
+            obj.CurrentState = convertPoseToSE2(message);
         end
 
     end % End of methods

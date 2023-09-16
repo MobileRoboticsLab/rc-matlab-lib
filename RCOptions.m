@@ -3,14 +3,6 @@ function opts = RCOptions()
 % Create new RC options struct
 opts = struct;
 
-% Control functions
-opts.PlannerFcn = @TestPlannerFcn;
-opts.ControlFcn = @TestControlFcn;
-
-% Timer frequencies
-opts.PlannerFreq = 0.5; % Hz
-opts.ControlFreq = 10; % Hz
-
 % Speed conversion: ERPM -> m/s
 opts.DriveGain = 3500;
 opts.DriveOffset = 0;

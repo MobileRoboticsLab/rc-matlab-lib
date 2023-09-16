@@ -8,7 +8,7 @@ scan.TimeIncrement = 1/100;
 scan.ScanTime = 1;
 scan.RangeMin = 0;
 scan.RangeMax = 50;
-scan.Ranges = rand(1,100)*50;
+scan.Ranges = ones(1,100)*25;
 scan.Intensities = ones(1, 100);
 
 end

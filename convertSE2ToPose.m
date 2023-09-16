@@ -1,4 +1,4 @@
-function pose = SE2ToPose(state)
+function pose = convertSE2ToPose(state)
 
 % Extract x, y and yaw from the input vector
 x = state(1);

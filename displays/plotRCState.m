@@ -82,6 +82,9 @@ wheelBL_G = G_trans_RC + G_rot_RC*(RC_trans_BW + (wheel + XW_trans_WL)); % back 
 wheelBR_G = G_trans_RC + G_rot_RC*(RC_trans_BW + (wheel + XW_trans_WR)); % back right
 wheelFR_G = G_trans_RC + G_rot_RC*(RC_trans_FW + (RC_rot_FW*wheel + XW_trans_WR)); % front right
 
+% wheelFL_G = G_trans_RC + G_rot_RC*(RC_trans_FW + (RC_rot_FL*wheel + XW_trans_WL));
+% wheelFR_G = G_trans_RC + G_rot_RC*(RC_trans_FW + (RC_rot_FR*wheel + XW_trans_WR));
+
 %% PLOT
 
 if isempty(display)

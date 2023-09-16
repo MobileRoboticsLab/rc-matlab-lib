@@ -1,5 +1,5 @@
 % Convert ROS Pose message to state vector in SE(2) space
-function state = poseToSE2(pose)
+function state = convertPoseToSE2(pose)
 
 % Extract x and y positions from the pose message
 x = pose.Pose.Position.X;
