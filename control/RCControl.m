@@ -17,7 +17,6 @@ classdef RCControl < handle
 
     methods
         function obj = RCControl(RC, controlHandle, plannerHandle)
-            addpath("controllers/");
             obj.RC = RC;
             obj.ControlFreq = 10;
             obj.ControlFcn = controlHandle;

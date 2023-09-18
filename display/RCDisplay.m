@@ -20,7 +20,6 @@ classdef RCDisplay < handle
 
     methods
         function obj = RCDisplay(RC, rows, cols, varargin)
-            addpath("displays/");
             obj.RC = RC;
 
             if (rows*cols ~= numel(varargin))
@@ -31,7 +30,7 @@ classdef RCDisplay < handle
             obj.Cols = cols;
             obj.DisplayFcns = varargin;
 
-            obj.FrameRate = 15;
+            obj.FrameRate = 20;
             obj.isOpen = false;
 
         end
@@ -39,6 +38,7 @@ classdef RCDisplay < handle
         function open(obj)
             if ~obj.isOpen
 
+                obj.DisplayPlotData = {};
                 obj.Figure = figure();
 
                 obj.initializeDisplay()
@@ -72,23 +72,26 @@ classdef RCDisplay < handle
         end
 
         function initializeDisplay(obj)
+            figure(obj.Figure)
             obj.DisplayPlotData = cell(1, obj.Rows*obj.Cols);
             for r = 1:obj.Rows
                 for c = 1:obj.Cols
                     i = (r - 1)*obj.Cols + c;
-                    subplot(r, c, i)
+                    subplot(obj.Rows, obj.Cols, i)
                     obj.DisplayPlotData{i} = obj.DisplayFcns{i}(...
-                        obj.RC, obj.Figure, []);
+                        obj.RC, obj, []);
                 end
             end
         end
 
         function updateDisplay(obj)
+            figure(obj.Figure)
             for r = 1:obj.Rows
                 for c = 1:obj.Cols
                     i = (r - 1)*obj.Cols + c;
+                    subplot(obj.Rows, obj.Cols, i)
                     obj.DisplayPlotData{i} = obj.DisplayFcns{i}(...
-                        obj.RC, obj.Figure, obj.DisplayPlotData{i});
+                        obj.RC, obj, obj.DisplayPlotData{i});
                 end
             end
         end

@@ -1,4 +1,4 @@
-function display = plotRCState(RC, display)
+function plotData = displayRCState(RC, ~, plotData)
 
 if isempty(RC.CurrentState)
     return
@@ -87,24 +87,24 @@ wheelFR_G = G_trans_RC + G_rot_RC*(RC_trans_FW + (RC_rot_FW*wheel + XW_trans_WR)
 
 %% PLOT
 
-if isempty(display)
+if isempty(plotData)
     hold on
     grid on
-    display = [];
-    display(1) = fill(body_G(1,:), body_G(2,:), 'g'); % car plot
-    display(2) = fill(wheelFL_G(1,:), wheelFL_G(2,:), 'k'); % Front Left
-    display(3) = fill(wheelBL_G(1,:), wheelBL_G(2,:), 'k'); % Back Left
-    display(4) = fill(wheelBR_G(1,:), wheelBR_G(2,:), 'k'); % Back Right
-    display(5) = fill(wheelFR_G(1,:), wheelFR_G(2,:), 'k'); % Front Right
+    plotData = {};
+    plotData{1} = fill(body_G(1,:), body_G(2,:), 'g'); % car plot
+    plotData{2} = fill(wheelFL_G(1,:), wheelFL_G(2,:), 'k'); % Front Left
+    plotData{3} = fill(wheelBL_G(1,:), wheelBL_G(2,:), 'k'); % Back Left
+    plotData{4} = fill(wheelBR_G(1,:), wheelBR_G(2,:), 'k'); % Back Right
+    plotData{5} = fill(wheelFR_G(1,:), wheelFR_G(2,:), 'k'); % Front Right
 else
-    set(display(1), 'xdata', body_G(1,:), 'ydata', body_G(2,:))
-    set(display(2), 'xdata', wheelFL_G(1,:), 'ydata', wheelFL_G(2,:))
-    set(display(3), 'xdata', wheelBL_G(1,:), 'ydata', wheelBL_G(2,:))
-    set(display(4), 'xdata', wheelBR_G(1,:), 'ydata', wheelBR_G(2,:))
-    set(display(5), 'xdata', wheelFR_G(1,:), 'ydata', wheelFR_G(2,:))
+    set(plotData{1}, 'xdata', body_G(1,:), 'ydata', body_G(2,:))
+    set(plotData{2}, 'xdata', wheelFL_G(1,:), 'ydata', wheelFL_G(2,:))
+    set(plotData{3}, 'xdata', wheelBL_G(1,:), 'ydata', wheelBL_G(2,:))
+    set(plotData{4}, 'xdata', wheelBR_G(1,:), 'ydata', wheelBR_G(2,:))
+    set(plotData{5}, 'xdata', wheelFR_G(1,:), 'ydata', wheelFR_G(2,:))
 end
 
-halfWindowSize = 0.5;
+halfWindowSize = 1.0;
 axis([G_trans_RC(1) - halfWindowSize, ...
     G_trans_RC(1) + halfWindowSize, ...
     G_trans_RC(2) - halfWindowSize, ...
