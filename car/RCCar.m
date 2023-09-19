@@ -126,6 +126,14 @@ classdef RCCar < handle
             obj.CurrentState = convertPoseToSE2(message);
         end
 
+        function clearLogs(obj)
+            obj.DataLog1 = [];
+            obj.DataLog2 = [];
+            obj.DataLog3 = [];
+            obj.DataLog4 = [];
+            obj.DataLog5 = [];
+        end
+
     end % End of methods
 
 end % End of classdef

@@ -22,10 +22,13 @@ classdef RCControl < handle
             obj.ControlFcn = controlHandle;
             obj.PlannerFreq = 0.5;
             obj.PlannerFcn = plannerHandle;
+            obj.isRunning = false;
         end
 
         function start(obj)
             if ~obj.isRunning
+
+                obj.RC.clearLogs();
 
                 fprintf("Starting RC Planner @ %.1f Hz. \n", obj.PlannerFreq)
 
