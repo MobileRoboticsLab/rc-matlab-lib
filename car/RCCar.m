@@ -25,6 +25,14 @@ classdef RCCar < handle
         NextState    % Predicted or desired next state. (Set by user)
         GoalState    % Target state that the vehicle is trying to reach. (Set by user)
 
+        % Time information
+        LastTime
+        CurrentTime
+
+        % Velocity information
+        LastVelocity
+        CurrentVelocity
+
         % Control properties for the vehicle
         CurrentControl % Curent control [v, gamma] of the vehicle. (Automatic)
         NextControl    % Predicted or desired next control. (Set by user)
@@ -124,6 +132,13 @@ classdef RCCar < handle
         function poseCallback(obj, ~, message)
             obj.LastState = obj.CurrentState;
             obj.CurrentState = convertPoseToSE2(message);
+            obj.LastTime = obj.CurrentTime;
+            obj.CurrentTime = datetime('now');
+            if ~isempty(obj.LastState)
+                obj.LastVelocity = obj.CurrentVelocity;
+                obj.CurrentVelocity = (obj.CurrentState - obj.LastState) ./ ...
+                                        seconds(obj.CurrentTime - obj.LastTime);
+            end
         end
 
         function clearLogs(obj)
