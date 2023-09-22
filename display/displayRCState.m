@@ -11,10 +11,11 @@ carWidth = 0.1; % m
 carLength = 0.3; % m
 
 % Get current state and control
-position = RC.CurrentState(1:2); % x, y
-theta = RC.CurrentState(3); % theta
-% velocity = RC.CurrentControl(1);
+position = [RC.X; RC.Y]; % x, y
+phi = RC.Phi; % theta
+velocity = RC.CurrentControl(1);
 gamma = RC.CurrentControl(2);
+rotation = velocity / RC.WheelBaseLength * tan(gamma);
 
 % carWheelbaseLength = 0.3
 % carTrackWidth = 0.2
@@ -24,7 +25,7 @@ gamma = RC.CurrentControl(2);
 
 % Car body points
 body_RC = [+carLength/2, -carLength/2, -carLength/2 , +carLength/2;
-           +carWidth/2, +carWidth/2, -carWidth/2, -carWidth/2];
+    +carWidth/2, +carWidth/2, -carWidth/2, -carWidth/2];
 
 
 %% WHEEL INFO
@@ -37,7 +38,7 @@ axleOffsetY = (carWidth + wheelWidth)/2; % m
 
 % Wheel body points
 wheel = [+wheelLength/2, -wheelLength/2, -wheelLength/2 , +wheelLength/2;
-         +wheelWidth/2, +wheelWidth/2, -wheelWidth/2, -wheelWidth/2];
+    +wheelWidth/2, +wheelWidth/2, -wheelWidth/2, -wheelWidth/2];
 
 %% SETUP FRAMES
 
@@ -51,8 +52,8 @@ wheel = [+wheelLength/2, -wheelLength/2, -wheelLength/2 , +wheelLength/2;
 G_trans_RC = position;
 
 % Rotation: Ground frame to RC frame
-G_rot_RC = [cos(theta), -sin(theta);
-            sin(theta), cos(theta)];
+G_rot_RC = [cos(phi), -sin(phi);
+    sin(phi), cos(phi)];
 
 % Translations: Front/back axle to left and right wheel frames
 XW_trans_WL = [0; +axleOffsetY];
@@ -64,13 +65,37 @@ RC_trans_BW = [-axleOffsetX; 0];
 
 % Rotation: RC frame to front axle frame
 RC_rot_FW = [cos(gamma), -sin(gamma);
-             sin(gamma), cos(gamma)];
+    sin(gamma), cos(gamma)];
 
 % RC_rot_FL = [cos(gamma_left), -sin(gamma_left);
 %              sin(gamma_left), cos(gamma_left)];
 % RC_rot_FR = [cos(gamma_right), -sin(gamma_right);
 %              sin(gamma_right), cos(gamma_right)];
 
+%% Heading Line
+
+head_t = 0:0.2:1;
+if rotation ~= 0
+    % plot arc
+    head_R = velocity / rotation;
+    head_q = velocity.*head_t / head_R;
+    head_x = head_R .* cos(head_q - pi/2);
+    head_y = head_R .* sin(head_q - pi/2);
+    head = [head_x; head_y];
+    head_trans_C = [0; head_R];
+elseif velocity ~= 0
+    % plot straight line
+    head_x = [0, velocity .* head_t(end)];
+    head_y = [0, 0];
+    head = [head_x; head_y];
+    head_trans_C = [0; 0];
+else
+    % plot nothing
+    head = [0; 0];
+    head_trans_C = [0; 0];
+end
+
+RC_trans_head = [0; 0];
 %% APPLY TRANSFORMS
 
 % Body transformation
@@ -85,6 +110,8 @@ wheelFR_G = G_trans_RC + G_rot_RC*(RC_trans_FW + (RC_rot_FW*wheel + XW_trans_WR)
 % wheelFL_G = G_trans_RC + G_rot_RC*(RC_trans_FW + (RC_rot_FL*wheel + XW_trans_WL));
 % wheelFR_G = G_trans_RC + G_rot_RC*(RC_trans_FW + (RC_rot_FR*wheel + XW_trans_WR));
 
+head_G = G_trans_RC + G_rot_RC*(RC_trans_head + head_trans_C + head);
+
 %% PLOT
 
 if isempty(plotData)
@@ -96,12 +123,14 @@ if isempty(plotData)
     plotData{3} = fill(wheelBL_G(1,:), wheelBL_G(2,:), 'k'); % Back Left
     plotData{4} = fill(wheelBR_G(1,:), wheelBR_G(2,:), 'k'); % Back Right
     plotData{5} = fill(wheelFR_G(1,:), wheelFR_G(2,:), 'k'); % Front Right
+    plotData{6} = plot(head_G(1,:), head_G(2,:), 'b');
 else
     set(plotData{1}, 'xdata', body_G(1,:), 'ydata', body_G(2,:))
     set(plotData{2}, 'xdata', wheelFL_G(1,:), 'ydata', wheelFL_G(2,:))
     set(plotData{3}, 'xdata', wheelBL_G(1,:), 'ydata', wheelBL_G(2,:))
     set(plotData{4}, 'xdata', wheelBR_G(1,:), 'ydata', wheelBR_G(2,:))
     set(plotData{5}, 'xdata', wheelFR_G(1,:), 'ydata', wheelFR_G(2,:))
+    set(plotData{6}, 'xdata', head_G(1,:), 'ydata', head_G(2,:));
 end
 
 halfWindowSize = 1.0;
@@ -110,5 +139,7 @@ axis([G_trans_RC(1) - halfWindowSize, ...
     G_trans_RC(2) - halfWindowSize, ...
     G_trans_RC(2) + halfWindowSize]);
 
+if velocity ~= 0 && rotation ~= 0
+    disp("X")
 end
 

@@ -7,6 +7,8 @@ yData = RC.(strcat("DataLog", int2str(ylog)));
 if isempty(plotData)
     % CREATE
     plotData = plot(xData, yData);
+    xlabel(sprintf("DataLog%d", xlog))
+    ylabel(sprintf("DataLog%d", ylog))
 else
     % UPDATE
     set(plotData, 'xdata', xData, 'ydata', yData);
