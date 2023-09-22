@@ -7,7 +7,6 @@ classdef RCCar < handle
     % Define properties for the RCController class.
     properties
         Node    % ROS node.
-        Options % User-defined options
 
         % Subscribers listen for messages on specific topics.
         PoseSubscriber
@@ -43,19 +42,41 @@ classdef RCCar < handle
         DataLog3
         DataLog4
         DataLog5
+
+        % RC Params
+        WheelBaseLength
+        DriveGain
+        DriveOffset
+        SteerGain
+        SteerOffset
+        MaxSpeed
+        MinSpeed
+        MaxSteerAngle
+        MinSteerAngle
+
     end
 
     methods
 
         % Constructor
-        function obj = RCCar(options)
+        function obj = RCCar()
 
-            % Use default RCOptions.
-            arguments
-                options = RCOptions
-            end
+            % Distance between front and back axles
+            obj.WheelBaseLength = 0.3;
 
-            obj.Options = options;
+            % Speed conversion: ERPM -> m/s
+            obj.DriveGain = 3500;
+            obj.DriveOffset = 0;
+
+            % Steer conversion: ? -> rads
+            obj.SteerGain = 0.95;
+            obj.SteerOffset = 0.40;
+
+            % DO NOT TOUCH! >:(
+            obj.MaxSpeed = 1.0; % m/s
+            obj.MinSpeed = -0.75; % m/s
+            obj.MaxSteerAngle = +0.25; % rad
+            obj.MinSteerAngle = -0.25; % rad
 
             obj.Node = ros.Node('/rc_car_matlab_node');
 
@@ -96,13 +117,20 @@ classdef RCCar < handle
             scan = obj.LidarSubscriber.LatestMessage;
         end
 
-        % Sends a command to set the motor's speed. [erpm]
-        function setMotorSpeed(obj, speedValue)
+        % Sends a command to set the motor's speed. [m/s]
+        function setSpeed(obj, speedValue)
+
+            % Make sure speed is within the speed limits
+            speedValue = max(min(speedValue, obj.MaxSpeed), obj.MinSpeed);
+
+            % Convert to erpm
+            motorSpeed = obj.DriveGain * speedValue + obj.DriveOffset;
+
             % Create a ROS message
             msg = rosmessage(obj.MotorSpeedPublisher);
 
             % Set the desired speed value
-            msg.Data = speedValue;
+            msg.Data = motorSpeed;
 
             % Publish the message
             send(obj.MotorSpeedPublisher, msg);
@@ -112,18 +140,25 @@ classdef RCCar < handle
         end
 
         % Sends a command to set the servo's position.
-        function setServoPosition(obj, positionValue)
+        function setSteeringAngle(obj, angleValue)
+
+            % Make sure angle is within the steering limits
+            angleValue = max(min(angleValue, obj.MaxSteerAngle), obj.MinSteerAngle);
+
+            % Convert to servo position
+            servoPos = obj.SteerGain * angleValue + obj.SteerOffset;
+
             % Create a ROS message
             msg = rosmessage(obj.ServoPositionPublisher);
 
             % Set the desired position value
-            msg.Data = positionValue;
+            msg.Data = servoPos;
 
             % Publish the message
             send(obj.ServoPositionPublisher, msg);
 
             % Update control
-            obj.CurrentControl(2) = positionValue;
+            obj.CurrentControl(2) = angleValue;
         end
 
         % Callback function for PoseSubscriber. This is called whenever a new pose
@@ -137,7 +172,7 @@ classdef RCCar < handle
             if ~isempty(obj.LastState)
                 obj.LastVelocity = obj.CurrentVelocity;
                 obj.CurrentVelocity = (obj.CurrentState - obj.LastState) ./ ...
-                                        seconds(obj.CurrentTime - obj.LastTime);
+                    seconds(obj.CurrentTime - obj.LastTime);
             end
         end
 
@@ -147,6 +182,35 @@ classdef RCCar < handle
             obj.DataLog3 = [];
             obj.DataLog4 = [];
             obj.DataLog5 = [];
+        end
+
+        % Typedefs
+        function x = X(obj)
+            x = obj.CurrentState(1);
+        end
+
+        function y = Y(obj)
+            y = obj.CurrentState(2);
+        end
+
+        function phi = Phi(obj)
+            phi = obj.CurrentState(3);
+        end
+
+        function vx = Vx(obj)
+            vx = obj.CurrentVelocity(1);
+        end
+
+        function vy = Vy(obj)
+            vy = obj.CurrentVelocity(2);
+        end
+
+        function v = V(obj)
+            v = sqrt(sum(obj.CurrentVelocity(1:2)).^2);
+        end
+
+        function omega = Omega(obj)
+            omega = obj.CurrentVelocity(3);
         end
 
     end % End of methods

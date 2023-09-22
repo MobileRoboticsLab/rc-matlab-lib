@@ -12,6 +12,11 @@ classdef RCControl < handle
 
     methods
         function obj = RCControl(RC, controlFcn, controlFreq)
+            arguments
+                RC
+                controlFcn = @TestControlFcn;
+                controlFreq = 1;
+            end
             obj.RC = RC;
             obj.ControlFreq = controlFreq;
             obj.ControlFcn = controlFcn;

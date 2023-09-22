@@ -14,7 +14,7 @@ classdef RCSimulation < handle
         ServoPositionSubscriber
         SysCommandSubscriber
 
-        WheelbaseLength
+        WheelBaseLength
         State
         Control
         Scan
@@ -29,7 +29,7 @@ classdef RCSimulation < handle
             obj.SimulationPeriod = 1/10;
             obj.isRunning = false;
 
-            obj.WheelbaseLength = 0.3;
+            obj.WheelBaseLength = 0.3;
             obj.State = [0; 0; 0];
             obj.Control = [0; 0];
 
@@ -53,6 +53,8 @@ classdef RCSimulation < handle
             obj.SysCommandSubscriber = ros.Subscriber(obj.Node, ...
                 "/syscommand", "std_msgs/String", ...
                 @(~,msg) sysCommandCallback(obj, msg));
+
+            fprintf("RC Simulation Initialized.\n")
 
         end
 
@@ -86,7 +88,7 @@ classdef RCSimulation < handle
 
         function simulate(obj)
             obj.State = obj.State + ...
-                ackermannODE(0, obj.State, obj.Control, obj.WheelbaseLength)*obj.SimulationPeriod;
+                ackermannODE(0, obj.State, obj.Control, obj.WheelBaseLength)*obj.SimulationPeriod;
             obj.publishPose();
         end
 

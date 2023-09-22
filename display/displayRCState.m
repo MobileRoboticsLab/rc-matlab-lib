@@ -13,8 +13,8 @@ carLength = 0.3; % m
 % Get current state and control
 position = RC.CurrentState(1:2); % x, y
 theta = RC.CurrentState(3); % theta
-% velocity = (RC.CurrentControl(1) - RC.Options.DriveOffset) / RC.Options.DriveGain;
-gamma = (RC.CurrentControl(2) - RC.Options.SteerOffset) / RC.Options.SteerGain; % gamma
+% velocity = RC.CurrentControl(1);
+gamma = RC.CurrentControl(2);
 
 % carWheelbaseLength = 0.3
 % carTrackWidth = 0.2

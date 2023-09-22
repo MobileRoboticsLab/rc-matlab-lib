@@ -10,27 +10,39 @@ classdef RCDisplay < handle
         Figure
         isOpen
 
-        FrameRate
+        NumDisplays
+        DisplayRate
         DisplayTimer
-
         DisplayFcns
-        DisplayPlotData
+        DisplayData
+
+        NumAttachments
+        AttachmentRate
+        AttachmentTimer
+        AttachmentFcns
+        AttachmentData
 
     end
 
     methods
-        function obj = RCDisplay(RC, rows, cols, varargin)
+        function obj = RCDisplay(RC, rows, cols, displays, attachments)
             obj.RC = RC;
-
-            if (rows*cols ~= numel(varargin))
-                error("Display Error: Number of input functions does not equal the grid size.")
-            end
 
             obj.Rows = rows;
             obj.Cols = cols;
-            obj.DisplayFcns = varargin;
 
-            obj.FrameRate = 20;
+            obj.NumDisplays = numel(displays);
+            obj.DisplayRate = 10;
+            obj.DisplayFcns = displays;
+
+            obj.NumAttachments = numel(attachments);
+            obj.AttachmentRate = 20;
+            obj.AttachmentFcns = attachments;
+
+            if (rows*cols ~= obj.NumDisplays)
+                error("Display Error: Number of displays does not equal the subplot size.")
+            end
+
             obj.isOpen = false;
 
         end
@@ -38,14 +50,25 @@ classdef RCDisplay < handle
         function open(obj)
             if ~obj.isOpen
 
-                obj.DisplayPlotData = {};
                 obj.Figure = figure();
 
-                obj.initializeDisplay()
+                obj.DisplayData = {};
+                for d = 1:obj.NumDisplays
+                    obj.DisplayData{d} = [];
+                end
 
-                obj.DisplayTimer = timer('TimerFcn', {@(~,~) updateDisplay(obj)}, ...
-                    'ExecutionMode', 'fixedRate', 'Period', 1/obj.FrameRate);
+                obj.AttachmentData = {};
+                for a = 1:obj.NumAttachments
+                    obj.AttachmentData{a} = [];
+                end
+
+                obj.DisplayTimer = timer('TimerFcn', {@(~,~) updateDisplays(obj)}, ...
+                    'ExecutionMode', 'fixedRate', 'Period', 1/obj.DisplayRate);
                 start(obj.DisplayTimer)
+
+                obj.AttachmentTimer = timer('TimerFcn', {@(~,~) updateAttachments(obj)}, ...
+                    'ExecutionMode', 'fixedRate', 'Period', 1/obj.AttachmentRate);
+                start(obj.AttachmentTimer)
 
                 obj.Figure.CloseRequestFcn = @(~,~) close(obj);
                 obj.isOpen = true;
@@ -62,6 +85,10 @@ classdef RCDisplay < handle
                 delete(obj.DisplayTimer)
                 obj.DisplayTimer = [];
 
+                stop(obj.AttachmentTimer)
+                delete(obj.AttachmentTimer)
+                obj.AttachmentTimer = [];
+
                 delete(obj.Figure)
 
                 fprintf("RC Display closed.\n")
@@ -71,31 +98,25 @@ classdef RCDisplay < handle
             end
         end
 
-        function initializeDisplay(obj)
-            figure(obj.Figure)
-            obj.DisplayPlotData = cell(1, obj.Rows*obj.Cols);
-            for r = 1:obj.Rows
-                for c = 1:obj.Cols
-                    i = (r - 1)*obj.Cols + c;
-                    subplot(obj.Rows, obj.Cols, i)
-                    obj.DisplayPlotData{i} = obj.DisplayFcns{i}(...
-                        obj.RC, obj, []);
-                end
-            end
-        end
-
-        function updateDisplay(obj)
+        function updateDisplays(obj)
             figure(obj.Figure)
             for r = 1:obj.Rows
                 for c = 1:obj.Cols
                     i = (r - 1)*obj.Cols + c;
                     subplot(obj.Rows, obj.Cols, i)
-                    obj.DisplayPlotData{i} = obj.DisplayFcns{i}(...
-                        obj.RC, obj, obj.DisplayPlotData{i});
+                    obj.DisplayData{i} = obj.DisplayFcns{i}(...
+                        obj.RC, obj, obj.DisplayData{i});
                 end
             end
         end
 
+        function updateAttachments(obj)
+            for a = 1:obj.NumAttachments
+                obj.AttachmentData{a} = obj.AttachmentFcns{a}(...
+                    obj.RC, obj, obj.AttachmentData{a});
+            end
+
+        end
     end
+    
 end
-
