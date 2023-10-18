@@ -6,8 +6,8 @@ if isempty(attachmentData)
     attachmentData = 1;
     disp("Attached keyboard.")
 end
-setSpeed(RC, RC.NextControl(1));
-setSteeringAngle(RC, RC.NextControl(2));
+setSpeed(RC, RC.NextControl(1))
+setSteeringAngle(RC, RC.NextControl(2))
 end
 
 function keyPress(RC, key, control2)
