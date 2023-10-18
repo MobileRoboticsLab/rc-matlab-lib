@@ -139,7 +139,3 @@ axis([G_trans_RC(1) - halfWindowSize, ...
     G_trans_RC(2) - halfWindowSize, ...
     G_trans_RC(2) + halfWindowSize]);
 
-if velocity ~= 0 && rotation ~= 0
-    disp("X")
-end
-

@@ -19,6 +19,8 @@ classdef RCSimulation < handle
         Control
         Scan
 
+        Obstacles
+
         isRunning
     end
 
@@ -90,6 +92,10 @@ classdef RCSimulation < handle
             obj.State = obj.State + ...
                 ackermannODE(0, obj.State, obj.Control, obj.WheelBaseLength)*obj.SimulationPeriod;
             obj.publishPose();
+            if ~isempty(obj.Obstacles)
+                obj.Scan = simLidarScan(obj.State, obj.Obstacles);
+                obj.publishScan();
+            end
         end
 
         function motorSpeedCallback(obj, msg)
