@@ -1,23 +1,48 @@
 %% RC Keyboard Control
 % Jonathan Boylan
-% 9/21
+% 11/10
 
 clc
+clear
 close all
-CLEAR
 
-%%
+ConnectToROS
+%% Display
 
+% Connect to RC
 RC = RCCar();
 
-pause(1.0)
+display = figure();
+display.Figure.KeyPressFcn = @(~,evt) keyPress(RC, evt.Key);
+display.Figure.KeyReleaseFcn = @(~,evt) keyRelease(RC, evt.Key);
 
-rcdisplay = RCDisplay(RC, 1, 1, ...
-    {@displayRCState}, ...
-    {@attachKeyboardControl});
 
-rcdisplay.DisplayRate = 20;
+DisconnectFromROS
 
-pause(1.0);
+%% Functions
 
-rcdisplay.open();
+function keyPress(RC, key)
+    switch key
+        case 'w'
+            RC.NextControl(1) = RC.MaxSpeed;
+        case 'a'
+            RC.NextControl(2) = RC.MaxSteerAngle;
+        case 's'
+            RC.NextControl(1) = RC.MinSpeed;
+        case 'd'
+            RC.NextControl(2) = RC.MinSteerAngle;
+    end
+end
+
+function keyRelease(RC, key)
+    switch key
+        case 'w'
+            RC.NextControl(1) = 0;
+        case 'a'
+            RC.NextControl(2) = 0;
+        case 's'
+            RC.NextControl(1) = 0;
+        case 'd'
+            RC.NextControl(2) = 0;
+    end
+end

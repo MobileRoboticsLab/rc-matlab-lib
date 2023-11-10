@@ -61,6 +61,8 @@ classdef RCCar < handle
         % Constructor
         function obj = RCCar()
 
+            fprintf("Connecting to RC Car...\n");
+
             % Distance between front and back axles
             obj.WheelBaseLength = 0.3;
 
@@ -97,9 +99,12 @@ classdef RCCar < handle
             obj.SysCommandPublisher = ros.Publisher(obj.Node, ...
                 '/syscommand', 'std_msgs/String');
 
+            obj.CurrentState = [0; 0; 0];
+            obj.CurrentVelocity = [0; 0; 0];
             obj.CurrentControl = [0; 0];
 
-            fprintf("RC Car Initialized.\n")
+            pause(5.0)
+            fprintf("RC Car Connected.\n")
         end
 
         % Get the latest pose message
@@ -169,11 +174,9 @@ classdef RCCar < handle
             obj.CurrentState = convertPoseToSE2(message);
             obj.LastTime = obj.CurrentTime;
             obj.CurrentTime = datetime('now');
-            if ~isempty(obj.LastState)
-                obj.LastVelocity = obj.CurrentVelocity;
-                obj.CurrentVelocity = (obj.CurrentState - obj.LastState) ./ ...
-                    seconds(obj.CurrentTime - obj.LastTime);
-            end
+            obj.LastVelocity = obj.CurrentVelocity;
+            obj.CurrentVelocity = (obj.CurrentState - obj.LastState) ./ ...
+                seconds(obj.CurrentTime - obj.LastTime);
         end
 
         function clearLogs(obj)
@@ -206,11 +209,51 @@ classdef RCCar < handle
         end
 
         function v = V(obj)
-            v = sqrt(sum(obj.CurrentVelocity(1:2)).^2);
+            v = sqrt(sum(obj.CurrentVelocity(1:2).^2));
         end
 
         function omega = Omega(obj)
             omega = obj.CurrentVelocity(3);
+        end
+
+        % Retrieves the occupancy value of the map at a specified (x, y) location.
+        function occupancy = getOccupancy(obj, x, y)
+            
+            % Get the latest map data
+            map = obj.getMap();
+            
+            % Convert the real-world (x, y) coordinates to grid/map
+            % coordinates based on map resolution and origin
+            x_grid = round((x - map.Info.Origin.Position.X) / map.Info.Resolution);
+            y_grid = round((y - map.Info.Origin.Position.Y) / map.Info.Resolution);
+            
+            % Check if the converted grid coordinates are within the valid map boundaries
+            if x_grid < 1 || x_grid > map.Info.Width || ...
+               y_grid < 1 || y_grid > map.Info.Height
+                fprintf("Provided XY location (%f, %f) is out of the map's boundaries.\n", x, y);
+                occupancy = -1;  % Return an error code for out-of-bound location
+                return;
+            end
+            
+            % Convert the 2D grid coordinates into a 1D index for the map data array
+            index = sub2ind([map.Info.Width, map.Info.Height], x_grid, y_grid);
+            
+            % Fetch and return the occupancy value from the map data at the calculated index
+            occupancy = map.Data(index);
+            
+        end
+
+        % Sends a command to reset the map
+        function resetMap(obj)
+
+            % Create a ROS message
+            msg = rosmessage(obj.SysCommandPublisher);
+
+            % Set the message data to the "reset" command
+            msg.Data = "reset";
+            
+            % Publish the message
+            send(obj.SysCommandPublisher, msg);
         end
 
     end % End of methods
