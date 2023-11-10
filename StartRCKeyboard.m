@@ -13,9 +13,10 @@ ConnectToROS
 RC = RCCar();
 
 display = figure();
-display.Figure.KeyPressFcn = @(~,evt) keyPress(RC, evt.Key);
-display.Figure.KeyReleaseFcn = @(~,evt) keyRelease(RC, evt.Key);
+display.KeyPressFcn = @(~,evt) keyPress(RC, evt.Key);
+display.KeyReleaseFcn = @(~,evt) keyRelease(RC, evt.Key);
 
+keyboard
 
 DisconnectFromROS
 
