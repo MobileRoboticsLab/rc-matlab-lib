@@ -6,7 +6,6 @@ clc
 clear
 close all
 
-ConnectToROS
 %% Display
 
 % Connect to RC
@@ -17,8 +16,6 @@ display.KeyPressFcn = @(~,evt) keyPress(RC, evt.Key);
 display.KeyReleaseFcn = @(~,evt) keyRelease(RC, evt.Key);
 
 keyboard
-
-DisconnectFromROS
 
 %% Functions
 

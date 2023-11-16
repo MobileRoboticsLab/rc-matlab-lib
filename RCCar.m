@@ -103,6 +103,12 @@ classdef RCCar < handle
             obj.CurrentVelocity = [0; 0; 0];
             obj.CurrentControl = [0; 0];
 
+            obj.DataLog1 = [];
+            obj.DataLog2 = [];
+            obj.DataLog3 = [];
+            obj.DataLog4 = [];
+            obj.DataLog5 = [];
+
             pause(5.0)
             fprintf("RC Car Connected.\n")
         end
