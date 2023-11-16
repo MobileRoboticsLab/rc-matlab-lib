@@ -15,7 +15,12 @@ display = figure();
 display.KeyPressFcn = @(~,evt) keyPress(RC, evt.Key);
 display.KeyReleaseFcn = @(~,evt) keyRelease(RC, evt.Key);
 
-keyboard
+RC.NextControl = [0; 0];
+while 1
+    RC.setSpeed(RC.NextControl(1))
+    RC.setSteeringAngle(RC.NextControl(2))
+    pause(0.01)
+end
 
 %% Functions
 

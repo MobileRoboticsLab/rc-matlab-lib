@@ -102,6 +102,7 @@ classdef RCCar < handle
             obj.CurrentState = [0; 0; 0];
             obj.CurrentVelocity = [0; 0; 0];
             obj.CurrentControl = [0; 0];
+            obj.CurrentTime = datetime('now');
 
             obj.DataLog1 = [];
             obj.DataLog2 = [];
