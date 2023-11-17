@@ -11,14 +11,20 @@ close all
 % Connect to RC
 RC = RCCar();
 
+% Create figure for control
 display = figure();
 display.KeyPressFcn = @(~,evt) keyPress(RC, evt.Key);
 display.KeyReleaseFcn = @(~,evt) keyRelease(RC, evt.Key);
 
+% Start control loop
 RC.NextControl = [0; 0];
 while 1
+    
+    % Send commands
     RC.setSpeed(RC.NextControl(1))
     RC.setSteeringAngle(RC.NextControl(2))
+
+    % Run at fixed frequency
     pause(0.01)
 end
 

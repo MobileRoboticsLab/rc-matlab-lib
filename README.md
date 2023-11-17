@@ -8,7 +8,8 @@
 ## Download Instructions
 
 1) Install latest version of MATLAB.
-2) Install ROS Toolbox. *(Add on > ROS Toolbox)*
+2) Install ROS Toolbox. *(Home > Add-Ons > ROS Toolbox)*
+3) Install Navigation Toolbox. *(Home > Add-Ons > Navigation Toolbox)*
 3) Download this library. *(Code > Download ZIP)*
 4) Extract in a convenient directory.
 
@@ -55,6 +56,11 @@ RC.setSteeringAngle(gamma)
 % Reset the localization position to (0,0,0) 
 % and clear the occupancy grid
 RC.resetMap()
+
+% Save the occupancy grid to your workspace
+% Use getOccupancy(saved_map, [x y]) to extract
+% occupancy information at a given x,y location
+RC.saveMap()
 ```
 
 ### RCCar Properties

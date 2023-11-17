@@ -263,6 +263,16 @@ classdef RCCar < handle
             send(obj.SysCommandPublisher, msg);
         end
 
+        % Save the map to a .mat file
+        function saveMap(obj)
+
+            % Convert to Navigation Toolbox grid
+            saved_map = readOccupancyGrid(obj.getMap());
+
+            % Save to workspace
+            save("OccupancyGridSave.mat", "saved_map");
+        end
+
     end % End of methods
 
 end % End of classdef
