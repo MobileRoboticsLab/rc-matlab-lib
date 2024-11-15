@@ -80,7 +80,7 @@ classdef RCCar < handle
             obj.MaxSteerAngle = +0.25; % rad
             obj.MinSteerAngle = -0.25; % rad
 
-            obj.Node = ros.Node('rc_car_matlab_node');
+            obj.Node = ros.Node(strcat('rc_car_matlab_node_', int2str(randi(10))));
 
             % Subscribers
             obj.PoseSubscriber = ros.Subscriber(obj.Node, ...
